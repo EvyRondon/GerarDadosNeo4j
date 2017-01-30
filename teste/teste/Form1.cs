@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -37,7 +38,8 @@ namespace teste
         {
             autores = new List<Autor>();
             palavrasChaves = new List<PalavraChave>();
-            StreamReader rd = new StreamReader(@"E:\Arquivos\Imagens\Teste\2014-1_2014-5(modificado2).csv", Encoding.GetEncoding("iso-8859-1"));
+            //StreamReader rd = new StreamReader(@"E:\Arquivos\Imagens\Teste\2014-1_2014-5(modificado2).csv", Encoding.GetEncoding("iso-8859-1"));
+            StreamReader rd = new StreamReader(@"C:\Users\29888\Pictures\TesteNeo\2014-1_2014-5(modificado2).csv", Encoding.GetEncoding("iso-8859-1"));
 
             string linha = null;
 
@@ -51,7 +53,7 @@ namespace teste
 
                 List<string> listaCompletaEmail = RetirarEmailDuplicado(linhaSeparada);
                 List<string> listaNome = linhaSeparada[1].Replace('[', ' ').Replace(']', ' ').Trim().Split(',').ToList();
-                List<string> listaPalavraChave = linhaSeparada[2].Replace('[', ' ').Replace(']', ' ').Trim().Split(',').ToList();
+                List<string> listaPalavraChave = linhaSeparada[2].Replace(" and ", " , ").Replace('.', ' ').Split(',').ToList();
 
                 GerarPalavraChave(listaPalavraChave);
                 GerarAutor(listaNome, listaCompletaEmail);
@@ -63,15 +65,16 @@ namespace teste
         {
             foreach (string palavraChave in listaPalavraChaves)
             {
-                if (!palavrasChaves.Any(x => x.Descricao == palavraChave)){
-                    var palavra = new PalavraChave { ID = palavraId, Descricao = palavraChave.Trim() };
+                string palavraChaveFormatada = RemoveAccents(palavraChave.ToLower().Trim());
+                if (!palavrasChaves.Any(x => x.Descricao == palavraChaveFormatada)){
+                    var palavra = new PalavraChave { ID = palavraId, Descricao = palavraChaveFormatada };
                     palavrasChaves.Add(palavra);
                     CriaPalavraChaveCSV(palavra);
                     CriarArtigoPalavraChaveCSV();
                     palavraId++;
                 }else
                 {
-                    var idPalavraRepetida = palavrasChaves.Where(x => x.Descricao == palavraChave).FirstOrDefault().ID;
+                    var idPalavraRepetida = palavrasChaves.Where(x => x.Descricao == palavraChaveFormatada).FirstOrDefault().ID;
                     CriarArtigoPalavraChaveCSV(idPalavraRepetida);
                 }
             }
@@ -119,7 +122,8 @@ namespace teste
         }
         public void CriaAutorCSV(string nome, string email)
         {
-            using (TextWriter sw = new StreamWriter(@"E:\Arquivos\Imagens\Teste\Autor.csv", true, Encoding.GetEncoding("iso-8859-1")))
+            //using (TextWriter sw = new StreamWriter(@"E:\Arquivos\Imagens\Teste\Autor.csv", true, Encoding.GetEncoding("iso-8859-1")))
+            using (TextWriter sw = new StreamWriter(@"C:\Users\29888\Pictures\TesteNeo\Autor.csv", true, Encoding.GetEncoding("iso-8859-1")))
             {
                 string strNome = nome;
                 string strEmail = email;//Note it's a float not string
@@ -130,7 +134,8 @@ namespace teste
         }
         public void CriaArtigoCSV(string titulo, string palavras, string ano)
         {
-            using (TextWriter sw = new StreamWriter(@"E:\Arquivos\Imagens\Teste\Artigo.csv", true, Encoding.GetEncoding("iso-8859-1")))
+            //using (TextWriter sw = new StreamWriter(@"E:\Arquivos\Imagens\Teste\Artigo.csv", true, Encoding.GetEncoding("iso-8859-1")))
+            using (TextWriter sw = new StreamWriter(@"C:\Users\29888\Pictures\TesteNeo\Artigo.csv", true, Encoding.GetEncoding("iso-8859-1")))
             {
                 sw.WriteLine("{0};{1};{2};{3}", artigoId, titulo, palavras, ano);
                 artigoId++;
@@ -138,25 +143,39 @@ namespace teste
         }
         public void CriaArtigoAutorCSV( string tipo, int? idPessoaCadastrada = null)
         {
-            using (TextWriter sw = new StreamWriter(@"E:\Arquivos\Imagens\Teste\ArtigoAutor.csv", true, Encoding.GetEncoding("iso-8859-1")))
+            //using (TextWriter sw = new StreamWriter(@"E:\Arquivos\Imagens\Teste\ArtigoAutor.csv", true, Encoding.GetEncoding("iso-8859-1")))
+            using (TextWriter sw = new StreamWriter(@"C:\Users\29888\Pictures\TesteNeo\ArtigoAutor.csv", true, Encoding.GetEncoding("iso-8859-1")))
             {
                 sw.WriteLine("{0};{1};{2}", idPessoaCadastrada ?? pessoaId, artigoId, tipo);
             }
         }
         public void CriaPalavraChaveCSV(PalavraChave palavra)
         {
-            using (TextWriter sw = new StreamWriter(@"E:\Arquivos\Imagens\Teste\PalavraChave.csv", true, Encoding.GetEncoding("iso-8859-1")))
+            //using (TextWriter sw = new StreamWriter(@"E:\Arquivos\Imagens\Teste\PalavraChave.csv", true, Encoding.GetEncoding("iso-8859-1")))
+            using (TextWriter sw = new StreamWriter(@"C:\Users\29888\Pictures\TesteNeo\PalavraChave.csv", true, Encoding.GetEncoding("iso-8859-1")))
             {
                 sw.WriteLine("{0};{1}", palavra.ID, palavra.Descricao);
             }
         }
-
         public void CriarArtigoPalavraChaveCSV(int? idPalavraRepetida = null)
         {
-            using (TextWriter sw = new StreamWriter(@"E:\Arquivos\Imagens\Teste\ArtigoPalavraChave.csv", true, Encoding.GetEncoding("iso-8859-1")))
+            //using (TextWriter sw = new StreamWriter(@"E:\Arquivos\Imagens\Teste\ArtigoPalavraChave.csv", true, Encoding.GetEncoding("iso-8859-1")))
+            using (TextWriter sw = new StreamWriter(@"C:\Users\29888\Pictures\TesteNeo\ArtigoPalavraChave.csv", true, Encoding.GetEncoding("iso-8859-1")))
             {
                 sw.WriteLine("{0};{1}", artigoId, idPalavraRepetida ?? palavraId);
             }
+        }
+
+        public string RemoveAccents(string text)
+        {
+            StringBuilder sbReturn = new StringBuilder();
+            var arrayText = text.Normalize(NormalizationForm.FormD).ToCharArray();
+            foreach (char letter in arrayText)
+            {
+                if (CharUnicodeInfo.GetUnicodeCategory(letter) != UnicodeCategory.NonSpacingMark)
+                    sbReturn.Append(letter);
+            }
+            return sbReturn.ToString();
         }
     }
 }
